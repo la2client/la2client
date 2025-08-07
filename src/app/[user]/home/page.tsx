@@ -250,24 +250,59 @@ export default function HomePage() {
             
             {/* Rate Categories */}
             <div className="bg-gray-800 rounded-lg p-6 mb-6">
-              <h3 className="text-white font-semibold mb-4">{t('rates.topL2Servers')}</h3>
-              <div className="space-y-2">
-                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1">
+              <h3 className="text-white font-semibold mb-4">Top L2 Servers</h3>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-3 py-2 rounded text-sm transition-colors">
+                  Interlude
+                </button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-3 py-2 rounded text-sm transition-colors">
+                  Interlude+
+                </button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-3 py-2 rounded text-sm transition-colors">
+                  High Five
+                </button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-3 py-2 rounded text-sm transition-colors">
+                  Essence
+                </button>
+              </div>
+              <div className="space-y-1">
+                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1 text-sm">
                   {t('rates.lowRate')}
                 </button>
-                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1">
+                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1 text-sm">
                   {t('rates.pvpServers')}
                 </button>
-                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1">
+                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1 text-sm">
                   {t('rates.gve')}
                 </button>
-                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1">
+                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1 text-sm">
                   {t('rates.multiskill')}
                 </button>
-                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1">
+                <button className="block w-full text-left text-gray-300 hover:text-orange-500 py-1 text-sm">
                   {t('rates.international')}
                 </button>
               </div>
+            </div>
+
+            {/* Rate Filter Buttons */}
+            <div className="bg-gray-800 rounded-lg p-6">
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x1</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x3</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x5</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x7</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x10</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x50</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x100</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x1000</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x1200</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x10000</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x50000</button>
+                <button className="bg-gray-700 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs transition-colors">x100000</button>
+              </div>
+              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded font-medium transition-colors">
+                Select server
+              </button>
             </div>
           </div>
         </div>

@@ -25,42 +25,38 @@ export default function ServerCard({ server, index }: ServerCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
       className={`bg-gray-800 rounded-lg p-4 border transition-all duration-200 hover:border-orange-500 ${
-        server.isVip ? 'border-orange-500 bg-gradient-to-r from-gray-800 to-orange-900/20' : 'border-gray-700'
+        server.isVip ? 'border-orange-500 bg-gradient-to-r from-gray-800 to-orange-900/20' : 'border-gray-600'
       }`}
     >
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           {server.isVip && (
-            <div className="bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold flex items-center">
+            <div className="bg-orange-500 text-white px-2 py-1 rounded-sm text-xs font-bold flex items-center">
               <Crown className="w-3 h-3 mr-1" />
               VIP
             </div>
           )}
-          <h3 className="text-white font-semibold text-lg">{server.name}</h3>
-          <Star className="w-4 h-4 text-orange-500" />
+          <h3 className="text-white font-semibold text-base">{server.name}</h3>
         </div>
         <a
           href={server.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-gray-400 hover:text-orange-500 transition-colors"
+          className="text-gray-400 hover:text-orange-500 transition-colors flex-shrink-0"
         >
           <ExternalLink className="w-4 h-4" />
         </a>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="grid grid-cols-3 gap-2 text-sm">
         <div>
-          <span className="text-gray-400">Rate:</span>
-          <span className="text-white ml-2 font-medium">{server.rate}</span>
+          <span className="text-orange-500 font-medium">{server.rate}</span>
         </div>
         <div>
-          <span className="text-gray-400">Chronicle:</span>
-          <span className="text-white ml-2 font-medium">{server.chronicle}</span>
+          <span className="text-white font-medium">{server.chronicle}</span>
         </div>
-        <div className="col-span-2">
-          <span className="text-gray-400">Opening:</span>
-          <span className="text-white ml-2 font-medium">{formatDate(server.openingDate)}</span>
+        <div className="text-right">
+          <span className="text-gray-300 font-medium">{formatDate(server.openingDate)}</span>
         </div>
       </div>
     </motion.div>
