@@ -105,7 +105,7 @@ export default function Footer() {
             </span>
           </Link>
           <p className="text-gray-400 text-sm">
-            {t('copyright')}
+            © 2012-2025 L2GTOPLIST.com
           </p>
         </div>
       </div>
