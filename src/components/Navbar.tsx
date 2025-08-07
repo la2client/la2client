@@ -41,7 +41,7 @@ export default function Navbar({ locale, onLocaleChange }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-gray-300 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="text-gray-300 hover:text-orange-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-gray-800"
               >
                 {item.label}
               </Link>
