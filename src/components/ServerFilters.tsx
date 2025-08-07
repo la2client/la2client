@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, Filter, X } from 'lucide-react';
+import {Search, Filter, X, ChevronDown} from 'lucide-react';
 import { RATES, CHRONICLES } from '@/lib/types';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
 
 interface ServerFiltersProps {
   onFilterChange: (filters: {
@@ -46,49 +49,60 @@ export default function ServerFilters({ onFilterChange }: ServerFiltersProps) {
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder={t('search')}
-            value={search}
-            onChange={(e) => handleFilterChange({ search: e.target.value })}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
-          />
-        </div>
+          <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                  type="text"
+                  placeholder={t('search')}
+                  value={search}
+                  onChange={(e) => handleFilterChange({ search: e.target.value })}
+                  className="pl-10"
+              />
+          </div>
 
         {/* Rate Filter */}
-        <select
-          value={rate}
-          onChange={(e) => handleFilterChange({ rate: e.target.value })}
-          className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"
-        >
-          <option value="">{t('allRates')}</option>
-          {RATES.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
+          <Select
+              value={rate}
+              onValueChange={(value) => handleFilterChange({ rate: value })}
+          >
+              <SelectTrigger className="w-full text-sm md:text-base text-start">
+                  <SelectValue placeholder={t('allRates')} />
+              </SelectTrigger>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                  {RATES.map((r) => (
+                      <SelectItem key={r} value={r} className="cursor-pointer">
+                          {r}
+                      </SelectItem>
+                  ))}
+              </SelectContent>
+          </Select>
 
         {/* Chronicle Filter */}
-        <select
-          value={chronicle}
-          onChange={(e) => handleFilterChange({ chronicle: e.target.value })}
-          className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"
-        >
-          <option value="">{t('allChronicles')}</option>
-          {CHRONICLES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+          <Select
+              value={chronicle}
+              onValueChange={(value) => handleFilterChange({ chronicle: value })}
+          >
+              <SelectTrigger className="w-full text-sm md:text-base text-start">
+                  <SelectValue placeholder={t('allChronicles')} />
+              </SelectTrigger>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                  {CHRONICLES.map((c) => (
+                      <SelectItem key={c} value={c} className="cursor-pointer">
+                          {c}
+                      </SelectItem>
+                  ))}
+              </SelectContent>
+          </Select>
 
         {/* Reset Button */}
-        <button
-          onClick={resetFilters}
-          className="bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg px-4 py-2 text-white transition-colors flex items-center justify-center"
-        >
-          <X className="w-4 h-4 mr-2" />
-          {t('reset')}
-        </button>
+          <Button
+              onClick={resetFilters}
+              variant="outline"
+              className="flex items-center justify-center bg-transparent hover:bg-background"
+          >
+              <X className="w-4 h-4 mr-2" />
+              {t('reset')}
+          </Button>
       </div>
     </div>
   );

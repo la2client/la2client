@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 export default function WallpaperBanner() {
   const [wallpaper, setWallpaper] = useState<WallpaperData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadWallpaper = async () => {
@@ -17,20 +17,19 @@ export default function WallpaperBanner() {
       } catch (error) {
         console.error('Failed to load wallpaper:', error);
       } finally {
-        setLoading(false);
       }
     };
 
     loadWallpaper();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-r from-gray-800 to-gray-900 flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Loading...</div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-r from-gray-800 to-gray-900 flex items-center justify-center">
+  //       <div className="animate-pulse text-gray-400">Loading...</div>
+  //     </div>
+  //   );
+  // }
 
   if (!wallpaper) {
       return null

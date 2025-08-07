@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 export default function SideBanner() {
   const [banner, setBanner] = useState<BannerData | null>(null);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadBanner = async () => {
@@ -17,20 +17,20 @@ export default function SideBanner() {
       } catch (error) {
         console.error('Failed to load banner:', error);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
     loadBanner();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="bg-gray-800 rounded-lg p-4 mb-6 h-64 flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Loading banner...</div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="bg-gray-800 rounded-lg p-4 mb-6 h-64 flex items-center justify-center">
+  //       <div className="animate-pulse text-gray-400">Loading banner...</div>
+  //     </div>
+  //   );
+  // }
 
   if (!banner) {
       return null

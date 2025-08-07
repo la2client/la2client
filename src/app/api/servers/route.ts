@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put, list, del } from '@vercel/blob';
 import { Server } from '@/lib/types';
+import {randomUUID} from "node:crypto";
 
 const SERVERS_BLOB_KEY = 'servers.json';
 
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     const servers = await getServersFromBlob();
     
     const newServer: Server = {
-      id: Date.now().toString(),
+      id: randomUUID(),
       createdAt: new Date().toISOString(),
       ...serverData,
     };
