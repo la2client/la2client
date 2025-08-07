@@ -24,10 +24,8 @@ export default function AboutUsPage() {
   ];
 
   const contacts = [
-    { icon: Users, label: 'Teams' },
-    { icon: Send, label: 'Telegram' },
-    { icon: Mail, label: 'Email' },
-    { icon: MessageSquare, label: 'Feedback Form' },
+    { icon: Send, label: 'Telegram', href: '#' },
+    { icon: Mail, label: 'Email', href: '#' },
   ];
 
   return (
@@ -91,11 +89,11 @@ export default function AboutUsPage() {
             {/* Contacts Section */}
             <div>
               <h3 className="text-xl font-bold text-white mb-6">{t('contacts')}</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                 {contacts.map((contact, index) => (
                   <motion.a
                     key={index}
-                    href="#"
+                    href={contact.href}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.1 }}

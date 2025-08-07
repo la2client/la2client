@@ -1,19 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import {routing} from "@/i18n/routing";
+
+// Initialize next-intl middleware for locale detection & routing
+const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
-  // Check if accessing admin routes
+  // First, let next‑intl handle locale detection and redirects.
+  const intlResponse = intlMiddleware(request);
+  if (intlResponse) {
+    return intlResponse;
+  }
+
+  // Next, enforce auth for admin routes.
   if (request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin') {
-    // Check for admin session (you can implement proper session management)
-    const isAuthenticated = request.cookies.get('admin-session')?.value === 'authenticated';
-    
+    const isAuthenticated =
+      request.cookies.get('admin-session')?.value === 'authenticated';
+
     if (!isAuthenticated) {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
   }
 
+  // Fall through for all other requests.
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*']
+  // Combine next‑intl matcher with admin routes
+  matcher: ['/((?!api|_next|.*\\..*).*)', '/admin/:path*']
 };

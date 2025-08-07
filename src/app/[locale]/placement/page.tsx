@@ -9,10 +9,8 @@ export default function PlacementPage() {
   const t = useTranslations('placement');
 
   const contactButtons = [
-    { icon: Users, label: t('teams'), href: '#' },
     { icon: Send, label: t('telegram'), href: '#' },
     { icon: Mail, label: t('email'), href: '#' },
-    { icon: MessageSquare, label: t('feedbackForm'), href: '#' },
   ];
 
   const placementOptions = [

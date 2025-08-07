@@ -35,10 +35,12 @@ export async function POST(request: NextRequest) {
     // Upload new wallpaper
     const filename = `${WALLPAPER_PREFIX}${Date.now()}-${file.name}`;
     const { url } = await put(filename, file, { access: 'public' });
+    const linkUrl = formData.get('linkUrl') as string;
     
     // Save wallpaper data
     const wallpaperData = {
       url,
+        linkUrl,
       uploadedAt: new Date().toISOString(),
     };
     

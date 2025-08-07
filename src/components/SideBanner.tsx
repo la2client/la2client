@@ -33,20 +33,21 @@ export default function SideBanner() {
   }
 
   if (!banner) {
-    return (
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 mb-6 h-64 flex items-center justify-center border border-gray-700">
-        <div className="text-center">
-          <h3 className="text-white font-bold text-lg mb-2">LINEAGE II</h3>
-          <p className="text-orange-500 text-sm mb-4">MAIN SUPERION PATCH</p>
-          <p className="text-gray-400 text-xs">RATES: X2</p>
-          <div className="mt-4">
-            <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-semibold transition-colors">
-              GRAND OPENING
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+      return null
+    // return (
+    //   <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 mb-6 h-64 flex items-center justify-center border border-gray-700">
+    //     <div className="text-center">
+    //       <h3 className="text-white font-bold text-lg mb-2">LINEAGE II</h3>
+    //       <p className="text-orange-500 text-sm mb-4">MAIN SUPERION PATCH</p>
+    //       <p className="text-gray-400 text-xs">RATES: X2</p>
+    //       <div className="mt-4">
+    //         <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-semibold transition-colors">
+    //           GRAND OPENING
+    //         </button>
+    //       </div>
+    //     </div>
+    //   </div>
+    // );
   }
 
   const BannerContent = () => (

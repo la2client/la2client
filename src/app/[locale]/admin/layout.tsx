@@ -13,7 +13,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -28,13 +28,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         router.push('/admin');
         return;
       }
-      setLoading(false);
     };
 
     if (pathname !== '/admin') {
       checkAuth();
     } else {
-      setLoading(false);
     }
   }, [pathname, router]);
 

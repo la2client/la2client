@@ -33,24 +33,25 @@ export default function WallpaperBanner() {
   }
 
   if (!wallpaper) {
-    return (
-      <div className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            ⚔️ IS NOW OPEN!
-          </h2>
-          <p className="text-xl md:text-2xl text-orange-500 mb-6">
-            Summer of Nornil x25
-          </p>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
-            PLAY NOW!
-          </button>
-        </div>
-      </div>
-    );
+      return null
+    // return (
+    //   <div className="relative h-64 md:h-80 lg:h-96 bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 flex items-center justify-center">
+    //     <div className="text-center">
+    //       <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">
+    //         ⚔️ IS NOW OPEN!
+    //       </h2>
+    //       <p className="text-xl md:text-2xl text-orange-500 mb-6">
+    //         Summer of Nornil x25
+    //       </p>
+    //       <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
+    //         PLAY NOW!
+    //       </button>
+    //     </div>
+    //   </div>
+    // );
   }
 
-  return (
+const Wallpaper = () => (
     <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
       <Image
         src={wallpaper.url}
@@ -59,19 +60,22 @@ export default function WallpaperBanner() {
         className="object-cover"
         priority
       />
-      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            ⚔️ IS NOW OPEN!
-          </h2>
-          <p className="text-xl md:text-2xl text-orange-500 mb-6">
-            Summer of Nornil x25
-          </p>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
-            PLAY NOW!
-          </button>
-        </div>
-      </div>
     </div>
-  );
+)
+
+    if (wallpaper.linkUrl) {
+        return (
+            <div className="mb-6">
+                <a href={wallpaper.linkUrl} target="_blank" rel="noopener noreferrer">
+                    <Wallpaper />
+                </a>
+            </div>
+        );
+    }
+
+    return (
+        <div className="mb-6">
+            <Wallpaper />
+        </div>
+    );
 }
