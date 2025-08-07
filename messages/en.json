@@ -1,0 +1,112 @@
+{
+  "nav": {
+    "home": "Home",
+    "placement": "Placement",
+    "faq": "FAQ",
+    "about": "About Us"
+  },
+  "home": {
+    "title": "Lineage 2 Servers",
+    "comingSoon": "Coming Soon Servers",
+    "alreadyOpened": "Already Opened",
+    "tomorrow": "Tomorrow",
+    "previous7Days": "Previous 7 Days",
+    "next7Days": "Next 7 Days",
+    "weekAgoAndMore": "Week Ago and More",
+    "afterWeekAndMore": "After Week and More",
+    "filters": {
+      "search": "Search servers...",
+      "allRates": "All rates",
+      "allChronicles": "All chronicles",
+      "selectServer": "Select server",
+      "reset": "Reset filters"
+    },
+    "rates": {
+      "topL2Servers": "Top L2 Servers",
+      "lowRate": "Low Rate",
+      "pvpServers": "PvP Servers",
+      "gve": "GvE",
+      "multiskill": "Multiskill",
+      "international": "International"
+    }
+  },
+  "placement": {
+    "title": "Placement Servers",
+    "enterChat": "Enter chat",
+    "teams": "Teams",
+    "telegram": "Telegram",
+    "email": "Email",
+    "feedbackForm": "Feedback Form",
+    "vipPlacement": "VIP Placement",
+    "vipPlacementLeft": "Place in the left VIP block",
+    "vipPlacementRight": "Place in the right VIP block",
+    "websiteWallpaper": "Website Wallpaper",
+    "usualPlacement": "Usual Placement",
+    "usualPlacementDesc": "Place in the lower block",
+    "banner": "Banner",
+    "placementFreeFrom": "Placement will be free from:",
+    "busy": "Busy",
+    "free": "Free"
+  },
+  "faq": {
+    "title": "FAQ: Frequently Asked Questions",
+    "questions": {
+      "q1": "What is this service about and how does it work?",
+      "a1": "L2GTOPLIST is a comprehensive platform for Lineage 2 server announcements and listings. We help players discover new servers and assist server owners in promoting their projects to a wide audience.",
+      "q2": "What is a Bonus Start?",
+      "a2": "A Bonus Start is a special promotional period when new servers offer additional benefits, rewards, or bonuses to players who join during the launch phase.",
+      "q3": "What does the 'Beginner Bonus' icon mean?",
+      "a3": "The Beginner Bonus icon indicates that the server offers special rewards, items, or advantages specifically designed for new players to help them get started.",
+      "q4": "What does the dollar icon mean near some servers?",
+      "a4": "The dollar icon indicates that the server has premium features, paid services, or donation options available for players who want to enhance their gaming experience.",
+      "q5": "How do I add my server to your site?",
+      "a5": "To add your server, please contact our administration team through the available contact methods. We'll guide you through the submission process and placement options.",
+      "q6": "Who is suitable for VIP placement and Fixed placement?",
+      "a6": "VIP placement is ideal for established servers with significant player bases or new servers with substantial marketing budgets. Fixed placement suits servers looking for consistent visibility over time.",
+      "q7": "Who is suitable for the website Wallpaper?",
+      "a7": "Website wallpaper advertising is perfect for major server launches, special events, or established servers wanting maximum visibility across our entire platform.",
+      "q8": "Who is suitable for a regular (blue) placement?",
+      "a8": "Regular placement is suitable for most servers, especially new projects or those with moderate budgets looking for good visibility in our standard listings.",
+      "q9": "Who is suitable for the side banner?",
+      "a9": "Side banner placement works well for servers wanting targeted advertising without the premium cost of VIP placement, ideal for mid-range promotional campaigns.",
+      "q10": "I would like to make a suggestion to improve the service.",
+      "a10": "We welcome all suggestions! Please contact us through our feedback form or direct communication channels. Your input helps us improve our platform for everyone."
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "welcome": "Welcome to L2GTOPLIST.COM!",
+    "description": "L2GTOPLIST.com is the world's leading Internet portal specializing in announcements about the launch of new Lineage 2 servers. Since 2012, we have been successfully helping players find the perfect projects for the game and supporting server owners in attracting a large number of players at the start.",
+    "stats": {
+      "years": "12+",
+      "yearsDesc": "12 years in the Lineage 2 server announcement market, which allowed us to become undisputed leaders in this niche.",
+      "users": "96,000+",
+      "usersDesc": "96 thousand players use our resource every month to search for servers, providing them with a convenient and efficient search for the newest and most attractive projects.",
+      "servers": "100+",
+      "serversDesc": "More than 100 Lineage 2 servers choose our platform every month to announce their launches, achieving high online performance from the first days of opening."
+    },
+    "cooperation": "We are proud to cooperate with well-known brands in the industry, such as SCRYDE, E-GLOBAL, THEBATTLE.CLUB, EURO-PVP, INTERLUDE-ONLINE, RPG-CLUB, MOON-LAND and many others.",
+    "mission": "Our mission is to provide players with a wide range of high-quality and stable Lineage 2 servers, as well as to create conditions for server owners so that they can attract the attention of an active audience who want to discover new worlds in Lineage 2.",
+    "goal": "We strive to ensure that every player finds their ideal server, and every project is appreciated by Lineage 2 players.",
+    "contacts": "Contacts:"
+  },
+  "footer": {
+    "main": "Main",
+    "information": "Information",
+    "contactUs": "Contact Us",
+    "home": "Home",
+    "contacts": "Contacts",
+    "aboutUs": "About Us",
+    "placement": "Placement",
+    "faq": "FAQ",
+    "sitemap": "Sitemap",
+    "cookies": "Cookies",
+    "userAgreement": "User Agreement",
+    "privacyPolicy": "Privacy Policy",
+    "teams": "Teams",
+    "telegram": "Telegram",
+    "email": "Email",
+    "feedbackForm": "Feedback Form",
+    "copyright": "© 2012-2025 L2GTOPLIST.com"
+  }
+}
