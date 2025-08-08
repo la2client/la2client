@@ -1,37 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put, list } from '@vercel/blob';
-import { Server } from '@/lib/types';
+import {saveServersToBlob, getServersFromBlob} from "@/app/api/servers/route";
 
-const SERVERS_BLOB_KEY = 'servers.json';
+// const SERVERS_BLOB_KEY = 'servers.json';
 
-async function getServersFromBlob(): Promise<Server[]> {
-  try {
-    const { blobs } = await list({ prefix: SERVERS_BLOB_KEY });
-    if (blobs.length === 0) return [];
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: { id: string } },
+) {
+    try {
+        const servers = await getServersFromBlob();
+        const filteredServers = servers.filter((s) => s.id !== params.id);
 
-    const response = await fetch(blobs[0].url);
-    return await response.json();
-  } catch {
-    return [];
-  }
+        // optional 404 if id wasn’t found
+        if (filteredServers.length === servers.length) {
+            return NextResponse.json({ error: 'Server not found' }, { status: 404 });
+        }
+
+        await saveServersToBlob(filteredServers);
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('DELETE /api/servers/[id] failed:', error);
+        return NextResponse.json(
+            { error: 'Failed to delete server' },
+            { status: 500 },
+        );
+    }
 }
-
-async function saveServersToBlob(servers: Server[]): Promise<void> {
-  const blob = new Blob([JSON.stringify(servers, null, 2)], { type: 'application/json' });
-  await put(SERVERS_BLOB_KEY, blob, { access: 'public' });
-}
-
-// export async function DELETE(
-//   request: NextRequest,
-//   { params }: { params: { id: string } }
-// ) {
-//   try {
-//     const servers = await getServersFromBlob();
-//     const filteredServers = servers.filter(server => server.id !== params.id);
-//     await saveServersToBlob(filteredServers);
-//
-//     return NextResponse.json({ success: true });
-//   } catch (error) {
-//     return NextResponse.json({ error: 'Failed to delete server' }, { status: 500 });
-//   }
-// }

@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Image as ImageIcon } from 'lucide-react';
-import { uploadWallpaper, getWallpaper } from '@/lib/storage';
+import {Upload, Image as ImageIcon, ExternalLink} from 'lucide-react';
+import {uploadWallpaper, getWallpaper, deleteWallpaper} from '@/lib/storage';
 import { WallpaperData } from '@/lib/types';
 import Image from 'next/image';
+import {Button} from "@/components/ui/button";
 
 export default function AdminWallpaperPage() {
   const [wallpaper, setWallpaper] = useState<WallpaperData | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [validUntil, setValidUntil] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     loadWallpaper();
@@ -21,6 +25,10 @@ export default function AdminWallpaperPage() {
     try {
       const data = await getWallpaper();
       setWallpaper(data);
+        if (data?.linkUrl) {
+            setLinkUrl(data.linkUrl);
+        }
+        if (data?.validUntil) setValidUntil(data.validUntil.slice(0, 10)); // YYYY-MM-DD
     } catch (error) {
       console.error('Failed to load wallpaper:', error);
     } finally {
@@ -28,24 +36,46 @@ export default function AdminWallpaperPage() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) =>
+        setSelectedFile(e.target.files?.[0] ?? null);
 
-    setUploading(true);
-    setMessage('');
+    const handleSave = async () => {
+        setUploading(true); setMessage('');
+        try {
+            const saved = await uploadWallpaper(selectedFile, linkUrl.trim(), validUntil);
+            setWallpaper(saved);
+            setSelectedFile(null);
+            setMessage('Wallpaper saved successfully!');
+        } catch { setMessage('Failed to save.'); }
+        finally { setUploading(false); }
+    };
 
-    try {
-      const newWallpaper = await uploadWallpaper(file);
-      setWallpaper(newWallpaper);
-      setMessage('Wallpaper uploaded successfully!');
-    } catch (error) {
-      setMessage('Failed to upload wallpaper. Please try again.');
-      console.error('Upload error:', error);
-    } finally {
-      setUploading(false);
-    }
-  };
+    const handleDelete = async () => {
+        if (!confirm('Delete current wallpaper?')) return;
+        try {
+            await deleteWallpaper();
+            setWallpaper(null); setLinkUrl(''); setValidUntil(''); setSelectedFile(null);
+        } catch { setMessage('Failed to delete.'); }
+    };
+
+  // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+  //
+  //   setUploading(true);
+  //   setMessage('');
+  //
+  //   try {
+  //     const newWallpaper = await uploadWallpaper(file, linkUrl);
+  //     setWallpaper(newWallpaper);
+  //     setMessage('Wallpaper uploaded successfully!');
+  //   } catch (error) {
+  //     setMessage('Failed to upload wallpaper. Please try again.');
+  //     console.error('Upload error:', error);
+  //   } finally {
+  //     setUploading(false);
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -73,9 +103,22 @@ export default function AdminWallpaperPage() {
                   className="object-cover"
                 />
               </div>
-              <p className="text-gray-400 text-sm">
-                Uploaded: {new Date(wallpaper.uploadedAt).toLocaleString()}
-              </p>
+                <div className="flex items-center justify-between">
+                    <p className="text-gray-400 text-sm">
+                        Uploaded: {new Date(wallpaper.uploadedAt).toLocaleString()}
+                    </p>
+                    {wallpaper.linkUrl && (
+                        <a
+                            href={wallpaper.linkUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-1 text-orange-500 hover:text-orange-400 text-sm"
+                        >
+                            <ExternalLink className="w-4 h-4" />
+                            <span>View Link</span>
+                        </a>
+                    )}
+                </div>
             </div>
           ) : (
             <div className="h-64 bg-gray-700 rounded-lg flex items-center justify-center">
@@ -95,14 +138,38 @@ export default function AdminWallpaperPage() {
         >
           <h2 className="text-xl font-bold text-white mb-4">Upload New Wallpaper</h2>
           <div className="space-y-4">
-            <div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Link URL (Optional)
+                  </label>
+                  <input
+                      type="url"
+                      value={linkUrl}
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      placeholder="https://example.com"
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"
+                  />
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Valid until (Optional)
+                  </label>
+                  <input
+                      type="date"
+                      value={validUntil}
+                      onChange={(e) => setValidUntil(e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"
+                  />
+              </div>
+
+              <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Select Image File (Recommended: 1920x600px)
               </label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleFileUpload}
+                onChange={handleFileSelect}
                 disabled={uploading}
                 className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
               />
@@ -131,6 +198,17 @@ export default function AdminWallpaperPage() {
               <p>• Maximum file size: 10MB</p>
             </div>
           </div>
+
+            <div className="flex justify-between gap-4 mt-6">
+                <Button onClick={handleSave} className="px-4 py-2 bg-orange-500 rounded-lg text-white hover:bg-orange-600 transition-colors">
+                    <Upload className="w-4 h-4 mr-2" /> Save
+                </Button>
+                {wallpaper && (
+                    <Button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white transition-colors rounded-lg hover:bg-red-700">
+                        Delete
+                    </Button>
+                )}
+            </div>
         </motion.div>
       </div>
     </div>

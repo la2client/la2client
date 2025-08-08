@@ -18,37 +18,61 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    try {
+        const form = await request.formData();
+        const file       = form.get('file')       as File   | null;
+        const linkUrl    = form.get('linkUrl')    as string | null;
+        const validUntil = form.get('validUntil') as string | null;
+
+        /* ---- 1. Load existing metadata (if any) ------------------------ */
+        let existing: any = null;
+        {
+            const { blobs } = await list({ prefix: WALLPAPER_DATA_KEY });
+            if (blobs.length) {
+                const resp = await fetch(blobs[0].url);
+                existing = await resp.json();
+            }
+        }
+
+        /* ---- 2. Decide which image URL to use -------------------------- */
+        let url = existing?.url ?? '';          // default to old URL if present
+        if (file && file.size) {
+            // delete old image files
+            const { blobs: old } = await list({ prefix: WALLPAPER_PREFIX });
+            await Promise.all(old.map(b => del(b.pathname)));
+
+            // upload new wallpaper
+            const filename = `${WALLPAPER_PREFIX}${Date.now()}-${file.name}`;
+            ({ url } = await put(filename, file, { access: 'public' }));
+        }
+
+        /* ---- 3. Build the new metadata object -------------------------- */
+        const wallpaperData = {
+            url,
+            linkUrl:    linkUrl    ?? existing?.linkUrl    ?? undefined,
+            validUntil: validUntil ?? existing?.validUntil ?? undefined,
+            uploadedAt: new Date().toISOString(),
+        };
+
+        /* ---- 4. Save JSON manifest ------------------------------------- */
+        // delete old manifest
+        const { blobs: meta } = await list({ prefix: WALLPAPER_DATA_KEY });
+        await Promise.all(meta.map(b => del(b.pathname)));
+
+        const blob = new Blob([JSON.stringify(wallpaperData)], { type: 'application/json' });
+        await put(WALLPAPER_DATA_KEY, blob, { access: 'public' });
+
+        return NextResponse.json(wallpaperData);
+    } catch (err) {
+        console.error('Wallpaper POST failed:', err);
+        return NextResponse.json({ error: 'Failed to upload wallpaper' }, { status: 500 });
     }
-    
-    // Delete old wallpaper
-    const { blobs: oldBlobs } = await list({ prefix: WALLPAPER_PREFIX });
-    for (const blob of oldBlobs) {
-      await del(blob.url);
-    }
-    
-    // Upload new wallpaper
-    const filename = `${WALLPAPER_PREFIX}${Date.now()}-${file.name}`;
-    const { url } = await put(filename, file, { access: 'public' });
-    const linkUrl = formData.get('linkUrl') as string;
-    
-    // Save wallpaper data
-    const wallpaperData = {
-      url,
-        linkUrl,
-      uploadedAt: new Date().toISOString(),
-    };
-    
-    const dataBlob = new Blob([JSON.stringify(wallpaperData)], { type: 'application/json' });
-    await put(WALLPAPER_DATA_KEY, dataBlob, { access: 'public' });
-    
-    return NextResponse.json(wallpaperData);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to upload wallpaper' }, { status: 500 });
-  }
+}
+
+export async function DELETE() {
+    await Promise.all([
+        list({ prefix: WALLPAPER_PREFIX }).then(r => Promise.all(r.blobs.map(b => del(b.pathname)))),
+        list({ prefix: WALLPAPER_DATA_KEY }).then(r => Promise.all(r.blobs.map(b => del(b.pathname)))),
+    ]);
+    return NextResponse.json({ success: true });
 }

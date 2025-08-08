@@ -51,7 +51,7 @@ export default function SideBanner() {
   }
 
   const BannerContent = () => (
-    <div className="relative h-64 rounded-lg overflow-hidden">
+    <div className="relative w-3/5 m-auto aspect-[240/400] h-72 lg:w-full lg:h-64 lg:m-0">
       <Image
         src={banner.url}
         alt="Side Banner"
@@ -63,7 +63,7 @@ export default function SideBanner() {
 
   if (banner.linkUrl) {
     return (
-      <div className="mb-6">
+      <div className="lg:mb-6">
         <a href={banner.linkUrl} target="_blank" rel="noopener noreferrer">
           <BannerContent />
         </a>
@@ -72,7 +72,7 @@ export default function SideBanner() {
   }
 
   return (
-    <div className="mb-6">
+    <div className="lg:mb-6">
       <BannerContent />
     </div>
   );

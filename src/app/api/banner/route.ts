@@ -19,36 +19,62 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const linkUrl = formData.get('linkUrl') as string;
-    
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
-    
-    // Delete old banner
-    const { blobs: oldBlobs } = await list({ prefix: BANNER_PREFIX });
-    for (const blob of oldBlobs) {
-      await del(blob.url);
-    }
-    
-    // Upload new banner
-    const filename = `${BANNER_PREFIX}${Date.now()}-${file.name}`;
-    const { url } = await put(filename, file, { access: 'public' });
-    
+      const form = await request.formData();
+      const file       = form.get('file')       as File   | null;
+      const linkUrl    = form.get('linkUrl')    as string | null;
+      const validUntil = form.get('validUntil') as string | null;
+
+      /* 1. Load existing metadata (if any) */
+      let existing: any = null;
+      {
+          const {blobs} = await list({prefix: BANNER_DATA_KEY});
+          if (blobs.length) {
+              const resp = await fetch(blobs[0].url);
+              existing = await resp.json();
+          }
+      }
+
+      /* 2. Decide which image URL to use */
+      let url = existing?.url ?? '';
+      if (file && file.size) {
+          // delete old banner images
+          const {blobs: oldFiles} = await list({prefix: BANNER_PREFIX});
+          await Promise.all(oldFiles.map(b => del(b.pathname)));
+
+          const filename = `${BANNER_PREFIX}${Date.now()}-${file.name}`;
+          ({url} = await put(filename, file, {access: 'public'}));
+      }
+
     // Save banner data
     const bannerData = {
-      url,
-      linkUrl: linkUrl || undefined,
-      uploadedAt: new Date().toISOString(),
+        url,
+        linkUrl:    linkUrl    ?? existing?.linkUrl    ?? undefined,
+        validUntil: validUntil ?? existing?.validUntil ?? undefined,
+        uploadedAt: new Date().toISOString(),
     };
-    
-    const dataBlob = new Blob([JSON.stringify(bannerData)], { type: 'application/json' });
-    await put(BANNER_DATA_KEY, dataBlob, { access: 'public' });
-    
+
+      /* 4. Save manifest */
+      const { blobs: manifests } = await list({ prefix: BANNER_DATA_KEY });
+      await Promise.all(manifests.map(b => del(b.pathname)));
+
+      const blob = new Blob([JSON.stringify(bannerData)], { type: 'application/json' });
+      await put(BANNER_DATA_KEY, blob, { access: 'public' });
+
     return NextResponse.json(bannerData);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to upload banner' }, { status: 500 });
   }
+}
+
+
+export async function DELETE() {
+    try {
+        await Promise.all([
+            list({ prefix: BANNER_PREFIX }).then(r => Promise.all(r.blobs.map(b => del(b.pathname)))),
+            list({ prefix: BANNER_DATA_KEY }).then(r => Promise.all(r.blobs.map(b => del(b.pathname)))),
+        ]);
+        return NextResponse.json({ success: true });
+    } catch {
+        return NextResponse.json({ error: 'Failed to delete banner' }, { status: 500 });
+    }
 }

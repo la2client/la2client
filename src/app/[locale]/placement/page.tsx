@@ -3,48 +3,67 @@
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import WallpaperBanner from '@/components/WallpaperBanner';
-import { Users, Send, Mail, MessageSquare } from 'lucide-react';
+import { Send, Mail } from 'lucide-react';
+import {BannerData, Server, WallpaperData} from "@/lib/types";
+import {useEffect, useState} from "react";
+import {getBanner, getServers, getWallpaper} from "@/lib/storage";
 
 export default function PlacementPage() {
   const t = useTranslations('placement');
+    const [vipServers, setVipServers] = useState<Server[]>([]);
+    const [wallpaper, setWallpaper] = useState<WallpaperData | null>(null);
+    const [banner, setBanner] = useState<BannerData | null>(null);
+
 
   const contactButtons = [
     { icon: Send, label: t('telegram'), href: '#' },
     { icon: Mail, label: t('email'), href: '#' },
   ];
 
-  const placementOptions = [
-    {
-      title: t('vipPlacement'),
-      subtitle: t('vipPlacementLeft'),
-      status: 'busy',
-      dates: ['07 September 2025, 15 September 2025', '04 October 2025, 18 October 2025'],
-    },
-    {
-      title: t('vipPlacement'),
-      subtitle: t('vipPlacementRight'),
-      status: 'busy',
-      dates: [],
-    },
-    {
-      title: t('websiteWallpaper'),
-      subtitle: '1920x600',
-      status: 'busy',
-      dates: ['22 May 2026'],
-    },
-    {
-      title: t('usualPlacement'),
-      subtitle: t('usualPlacementDesc'),
-      status: 'free',
-      dates: [],
-    },
-    {
-      title: t('banner'),
-      subtitle: '240x400',
-      status: 'busy',
-      dates: ['11 September 2025'],
-    },
-  ];
+    /* fetch data once */
+    useEffect(() => {
+        (async () => {
+            const servers = await getServers();
+            setVipServers(servers.filter(s => s.isVip).slice(0, 20));  // up to 20 vip slots
+            setWallpaper(await getWallpaper());
+            setBanner(await getBanner());
+        })();
+    }, []);
+
+    // 1× wallpaper slot
+    const wallpaperOption = {
+        title: t('websiteWallpaper'),
+        subtitle: '1920x600',
+        status: wallpaper ? 'busy' : 'free',
+        dates: wallpaper?.validUntil ? [wallpaper.validUntil] : [],
+    };
+
+    // 1× banner slot
+    const bannerOption = {
+        title: t('banner'),
+        subtitle: '240x400',
+        status: banner ? 'busy' : 'free',
+        dates: banner?.validUntil ? [banner.validUntil] : [],
+    };
+
+    // 20 vip slots
+    // summary card for VIP placement
+    const vipOption = {
+        title   : t('vipPlacement'),
+        subtitle: `${vipServers.length} / 20`,
+        status  : vipServers.length < 20 ? 'free' : 'busy',
+        dates   : [],
+    };
+
+    const freePlacement = {
+        title: t('usualPlacement'),
+        subtitle: '',
+        status: 'free',
+        dates: []
+    }
+
+    const placementOptions = [vipOption, wallpaperOption, bannerOption, freePlacement];
+
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -56,7 +75,7 @@ export default function PlacementPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold text-white mb-8">PLACEMENT SERVERS</h1>
+          <h1 className="text-4xl font-bold text-white mb-8">{t('placementHeader')}</h1>
           
           {/* Contact Section */}
           <div className="mb-12">
@@ -79,7 +98,7 @@ export default function PlacementPage() {
           </div>
 
           {/* Placement Options Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
             {placementOptions.map((option, index) => (
               <motion.div
                 key={index}
@@ -89,7 +108,7 @@ export default function PlacementPage() {
                 className="bg-gray-800 rounded-lg p-6 border border-gray-700"
               >
                 <h3 className="text-white font-bold text-xl mb-2">{option.title}</h3>
-                <p className="text-gray-400 mb-4">{option.subtitle}</p>
+                  <p className="text-gray-400 mb-4">{option.subtitle}</p>
                 
                 <div className="mb-4">
                   <span

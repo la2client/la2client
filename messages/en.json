@@ -45,9 +45,11 @@
     "usualPlacement": "Usual Placement",
     "usualPlacementDesc": "Place in the lower block",
     "banner": "Banner",
-    "placementFreeFrom": "Placement will be free from:",
+    "placementFreeFrom": "Placement will be free from",
     "busy": "Busy",
-    "free": "Free"
+    "free": "Free",
+    "placementHeader": "Placement Servers",
+    "": ""
   },
   "faq": {
     "title": "FAQ: Frequently Asked Questions",

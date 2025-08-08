@@ -51,7 +51,7 @@ export default function WallpaperBanner() {
   }
 
 const Wallpaper = () => (
-    <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
+    <div className="relative w-screen max-w-none aspect-[1920/600]">
       <Image
         src={wallpaper.url}
         alt="Website Wallpaper"
@@ -64,7 +64,7 @@ const Wallpaper = () => (
 
     if (wallpaper.linkUrl) {
         return (
-            <div className="mb-6">
+            <div>
                 <a href={wallpaper.linkUrl} target="_blank" rel="noopener noreferrer">
                     <Wallpaper />
                 </a>
@@ -73,7 +73,7 @@ const Wallpaper = () => (
     }
 
     return (
-        <div className="mb-6">
+        <div>
             <Wallpaper />
         </div>
     );

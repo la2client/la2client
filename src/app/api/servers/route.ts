@@ -5,20 +5,29 @@ import {randomUUID} from "node:crypto";
 
 const SERVERS_BLOB_KEY = 'servers.json';
 
-async function getServersFromBlob(): Promise<Server[]> {
+export async function getServersFromBlob(): Promise<Server[]> {
   try {
     const { blobs } = await list({ prefix: SERVERS_BLOB_KEY });
     if (blobs.length === 0) return [];
-    
-    const response = await fetch(blobs[0].url);
-    return await response.json();
+
+      const latest = blobs.reduce((prev, curr) =>
+              new Date(curr.uploadedAt).getTime() > new Date(prev.uploadedAt).getTime()
+                  ? curr
+                  : prev,
+          blobs[0]);
+
+      const response = await fetch(latest.url);
+      return (await response.json()) as Server[];
   } catch {
     return [];
   }
 }
 
-async function saveServersToBlob(servers: Server[]): Promise<void> {
-  const blob = new Blob([JSON.stringify(servers, null, 2)], { type: 'application/json' });
+export async function saveServersToBlob(servers: Server[]): Promise<void> {
+    const { blobs } = await list({ prefix: SERVERS_BLOB_KEY });
+    await Promise.all(blobs.map((b) => del(b.pathname)));
+
+    const blob = new Blob([JSON.stringify(servers, null, 2)], { type: 'application/json' });
   await put(SERVERS_BLOB_KEY, blob, { access: 'public' });
 }
 

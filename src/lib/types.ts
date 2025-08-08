@@ -12,12 +12,14 @@ export interface Server {
 export interface WallpaperData {
   url: string;
   linkUrl?: string;
+  validUntil?: string;
   uploadedAt: string;
 }
 
 export interface BannerData {
   url: string;
   linkUrl?: string;
+  validUntil?: string;
   uploadedAt: string;
 }
 
