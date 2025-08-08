@@ -5,7 +5,7 @@ import {randomUUID} from "node:crypto";
 
 const SERVERS_BLOB_KEY = 'servers.json';
 
-export async function getServersFromBlob(): Promise<Server[]> {
+async function getServersFromBlob(): Promise<Server[]> {
   try {
     const { blobs } = await list({ prefix: SERVERS_BLOB_KEY });
     if (blobs.length === 0) return [];
@@ -23,7 +23,7 @@ export async function getServersFromBlob(): Promise<Server[]> {
   }
 }
 
-export async function saveServersToBlob(servers: Server[]): Promise<void> {
+async function saveServersToBlob(servers: Server[]): Promise<void> {
     const { blobs } = await list({ prefix: SERVERS_BLOB_KEY });
     await Promise.all(blobs.map((b) => del(b.pathname)));
 
