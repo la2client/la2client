@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { getWallpaper } from '@/lib/storage';
 import { WallpaperData } from '@/lib/types';
 import Image from 'next/image';
+import {usePathname as useI18nPathname} from "@/i18n/navigation";
 
 export default function WallpaperBanner() {
   const [wallpaper, setWallpaper] = useState<WallpaperData | null>(null);
   // const [loading, setLoading] = useState(true);
+    const pathname = useI18nPathname();
 
   useEffect(() => {
     const loadWallpaper = async () => {
@@ -30,6 +32,8 @@ export default function WallpaperBanner() {
   //     </div>
   //   );
   // }
+
+    if (pathname?.includes('/admin')) return null;
 
   if (!wallpaper) {
       return null

@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {routing} from "@/i18n/routing";
+import WallpaperBanner from "@/components/WallpaperBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,8 +58,8 @@ export async function generateMetadata({
     params: { locale: string };
 }): Promise<Metadata> {
     const fallback = metaByLocale.en;
-    const meta = metaByLocale[params.locale as keyof typeof metaByLocale] || fallback;
-    const localeKey = ( params.locale as keyof typeof LocaleEnum) ?? "en";
+    const meta = metaByLocale[(await params).locale as keyof typeof metaByLocale] || fallback;
+    const localeKey = ((await params).locale as keyof typeof LocaleEnum) ?? "en";
     const htmlLang  = LocaleEnum[localeKey] ?? "en-US";
 
     return {
@@ -104,6 +105,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
       <Navbar/>
+      <WallpaperBanner />
         {children}
       <Footer/>
       </body>

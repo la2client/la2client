@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import WallpaperBanner from '@/components/WallpaperBanner';
 import { Plus, Minus } from 'lucide-react';
 
 export default function FAQPage() {
@@ -29,7 +28,6 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <WallpaperBanner />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
