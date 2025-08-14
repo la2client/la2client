@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, Crown, ExternalLink } from 'lucide-react';
 import { Server, RATES, CHRONICLES } from '@/lib/types';
-import { getServers, saveServer, deleteServer } from '@/lib/storage';
+import { saveServer, deleteServer } from '@/lib/storage';
+import {useBlobJson} from "@/hooks/useBlobJson";
 
 export default function AdminServersPage() {
-  const [servers, setServers] = useState<Server[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
+    const { data: servers, loading: sLoading, error: sError, mutate, revalidate } = useBlobJson<Server[]>('/servers.json');
+    const [showForm, setShowForm] = useState(false);
+    const [formData, setFormData] = useState({
     name: '',
     url: '',
     rate: '',
@@ -19,26 +19,13 @@ export default function AdminServersPage() {
     isVip: false,
   });
 
-  useEffect(() => {
-    loadServers();
-  }, []);
-
-  const loadServers = async () => {
-    try {
-      const data = await getServers();
-      setServers(data);
-    } catch (error) {
-      console.error('Failed to load servers:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const newServer = await saveServer(formData);
-      setServers([...servers, newServer]);
+        const current = Array.isArray(servers) ? servers : [];
+        await revalidate();
+        mutate([...current, newServer]);
       setFormData({
         name: '',
         url: '',
@@ -57,14 +44,16 @@ export default function AdminServersPage() {
     if (confirm('Are you sure you want to delete this server?')) {
       try {
         await deleteServer(id);
-        setServers(servers.filter(server => server.id !== id));
+          const current = Array.isArray(servers) ? servers : [];
+          await revalidate();
+          mutate(current.filter((server) => server.id !== id));
       } catch (error) {
         console.error('Failed to delete server:', error);
       }
     }
   };
 
-  if (loading) {
+  if (sLoading) {
     return (
       <div className="min-h-screen bg-gray-900 p-8">
         <div className="animate-pulse text-center text-gray-400">Loading...</div>
@@ -72,7 +61,15 @@ export default function AdminServersPage() {
     );
   }
 
-  return (
+    // if (sError) {
+    //     return (
+    //         <div className="min-h-screen bg-gray-900 p-8">
+    //             <div className="text-center text-red-400">Failed to load servers.</div>
+    //         </div>
+    //     );
+    // }
+
+    return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
@@ -220,7 +217,7 @@ export default function AdminServersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {servers.map((server) => (
+                {(servers ?? []).map((server) => (
                   <tr key={server.id} className="hover:bg-gray-750">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-3">
@@ -267,7 +264,7 @@ export default function AdminServersPage() {
           </div>
         </div>
 
-        {servers.length === 0 && (
+        {(servers ?? []).length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">No servers found. Add your first server!</p>
           </div>

@@ -24,8 +24,8 @@ export default function ServerCard({ server, index }: ServerCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className={`bg-gray-800 rounded-lg p-4 border transition-all duration-200 hover:border-orange-500 ${
-        server.isVip ? 'border-orange-500 bg-gradient-to-r from-gray-800 to-orange-900/20 hover:border-orange-700' : 'border-gray-600'
+      className={`bg-gray-800 rounded-lg p-4 border transition-all duration-300 ${
+        server.isVip ? 'border-orange-500 bg-gradient-to-r from-gray-800 to-orange-900/20 hover:border-orange-300' : 'border-gray-600 hover:border-gray-400'
       }`}
     >
       <div className="flex items-center justify-between mb-3">

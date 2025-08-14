@@ -7,10 +7,16 @@ import {uploadWallpaper, getWallpaper, deleteWallpaper} from '@/lib/storage';
 import { WallpaperData } from '@/lib/types';
 import Image from 'next/image';
 import {Button} from "@/components/ui/button";
+import {useBlobJson} from "@/hooks/useBlobJson";
 
 export default function AdminWallpaperPage() {
-  const [wallpaper, setWallpaper] = useState<WallpaperData | null>(null);
-  const [loading, setLoading] = useState(true);
+    const {
+        data: wallpaper,
+        loading: wLoading,
+        error: wError,
+        mutate,
+        revalidate
+    } = useBlobJson<WallpaperData | null>('/wallpaper-data.json');
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
@@ -18,23 +24,11 @@ export default function AdminWallpaperPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
-    loadWallpaper();
-  }, []);
-
-  const loadWallpaper = async () => {
-    try {
-      const data = await getWallpaper();
-      setWallpaper(data);
-        if (data?.linkUrl) {
-            setLinkUrl(data.linkUrl);
-        }
-        if (data?.validUntil) setValidUntil(data.validUntil.slice(0, 10)); // YYYY-MM-DD
-    } catch (error) {
-      console.error('Failed to load wallpaper:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (wallpaper?.linkUrl) setLinkUrl(wallpaper.linkUrl);
+      else setLinkUrl('');
+      if (wallpaper?.validUntil) setValidUntil(wallpaper.validUntil.slice(0, 10));
+      else setValidUntil('');
+  }, [wallpaper]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) =>
         setSelectedFile(e.target.files?.[0] ?? null);
@@ -43,7 +37,8 @@ export default function AdminWallpaperPage() {
         setUploading(true); setMessage('');
         try {
             const saved = await uploadWallpaper(selectedFile, linkUrl.trim(), validUntil);
-            setWallpaper(saved);
+            await revalidate();
+            mutate(saved);
             setSelectedFile(null);
             setMessage('Wallpaper saved successfully!');
         } catch { setMessage('Failed to save.'); }
@@ -54,7 +49,8 @@ export default function AdminWallpaperPage() {
         if (!confirm('Delete current wallpaper?')) return;
         try {
             await deleteWallpaper();
-            setWallpaper(null); setLinkUrl(''); setValidUntil(''); setSelectedFile(null);
+            await revalidate();
+            mutate(null); setLinkUrl(''); setValidUntil(''); setSelectedFile(null);
         } catch { setMessage('Failed to delete.'); }
     };
 
@@ -77,7 +73,7 @@ export default function AdminWallpaperPage() {
   //   }
   // };
 
-  if (loading) {
+  if (wLoading) {
     return (
       <div className="min-h-screen bg-gray-900 p-8">
         <div className="animate-pulse text-center text-gray-400">Loading...</div>

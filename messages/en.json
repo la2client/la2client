@@ -46,6 +46,7 @@
     "usualPlacementDesc": "Place in the lower block",
     "banner": "Banner",
     "placementFreeFrom": "Placement will be free from",
+    "freePlacement": "Placement is free",
     "busy": "Busy",
     "free": "Free",
     "placementHeader": "Placement Servers",

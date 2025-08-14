@@ -1,89 +1,132 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import WallpaperBanner from '@/components/WallpaperBanner';
 import ServerFilters from '@/components/ServerFilters';
 import ServerCard from '@/components/ServerCard';
 import SideBanner from '@/components/SideBanner';
 import { Server } from '@/lib/types';
-import { getServers } from '@/lib/storage';
+import {useBlobJson} from "@/hooks/useBlobJson";
 
 export default function HomePage() {
   const t = useTranslations('home');
-  const [servers, setServers] = useState<Server[]>([]);
-  const [filteredServers, setFilteredServers] = useState<Server[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: servers, loading: sLoading, error: sError, revalidate } = useBlobJson<Server[]>('/servers.json');
+  const [allServers, setAllServers] = useState<Server[]>([]);
+    const [filters, setFilters] = useState<{ search: string; rate: string; chronicle: string }>({
+        search: '',
+        rate: '',
+        chronicle: '',
+    });
 
-  useEffect(() => {
-    const loadServers = async () => {
-      try {
-        const data = await getServers();
-        setServers(data);
-        setFilteredServers(data);
-      } catch (error) {
-        console.error('Failed to load servers:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    loadServers();
-  }, []);
+    // when servers load/update, sync to local state
+    useEffect(() => {
+        if (Array.isArray(servers)) {
+            setAllServers(servers);
+        }
+    }, [servers]);
 
-  const handleFilterChange = (filters: { search: string; rate: string; chronicle: string }) => {
-    let filtered = servers;
+    // apply filters whenever allServers or filters change
+    const filteredServers = useMemo(() => {
+        let list = allServers;
+        if (filters.search) {
+            const q = filters.search.toLowerCase();
+            list = list.filter((s) => s.name?.toLowerCase().includes(q));
+        }
+        if (filters.rate) {
+            list = list.filter((s) => String(s.rate) === String(filters.rate));
+        }
+        if (filters.chronicle) {
+            list = list.filter((s) => String(s.chronicle) === String(filters.chronicle));
+        }
+        return list;
+    }, [allServers, filters]);
 
-    if (filters.search) {
-      filtered = filtered.filter(server =>
-        server.name.toLowerCase().includes(filters.search.toLowerCase())
-      );
-    }
 
-    if (filters.rate) {
-      filtered = filtered.filter(server => server.rate === filters.rate);
-    }
-
-    if (filters.chronicle) {
-      filtered = filtered.filter(server => server.chronicle === filters.chronicle);
-    }
-
-    setFilteredServers(filtered);
+  const handleFilterChange = (next: { search: string; rate: string; chronicle: string }) => {
+      setFilters(next);
   };
 
-  const categorizeServers = () => {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const weekFromNow = new Date(now);
-    weekFromNow.setDate(weekFromNow.getDate() + 7);
-    const weekAgo = new Date(now);
-    weekAgo.setDate(weekAgo.getDate() - 7);
+    const sortByVipThenDate = (arr: Server[], dir: 'asc' | 'desc' = 'asc') =>
+        arr.slice().sort((a, b) => {
+            const av = !!a.isVip ? 1 : 0;
+            const bv = !!b.isVip ? 1 : 0;
+            if (av !== bv) return bv - av; // VIPs first
+            const ad = toDate(a.openingDate as any)?.getTime() ?? 0;
+            const bd = toDate(b.openingDate as any)?.getTime() ?? 0;
+            return dir === 'asc' ? ad - bd : bd - ad;
+        });
 
-    return {
-      comingSoon: filteredServers.filter(server => new Date(server.openingDate) > now),
-      alreadyOpened: filteredServers.filter(server => new Date(server.openingDate) <= now),
-      tomorrow: filteredServers.filter(server => {
-        const openDate = new Date(server.openingDate);
-        return openDate.toDateString() === tomorrow.toDateString();
-      }),
-      previous7Days: filteredServers.filter(server => {
-        const openDate = new Date(server.openingDate);
-        return openDate <= now && openDate >= weekAgo;
-      }),
-      next7Days: filteredServers.filter(server => {
-        const openDate = new Date(server.openingDate);
-        return openDate > now && openDate <= weekFromNow;
-      }),
-      weekAgoAndMore: filteredServers.filter(server => new Date(server.openingDate) < weekAgo),
-      afterWeekAndMore: filteredServers.filter(server => new Date(server.openingDate) > weekFromNow),
+
+    // helper: safe date parse
+    const toDate = (d: string | number | Date) => {
+        const dt = new Date(d);
+        return isNaN(dt.getTime()) ? null : dt;
     };
-  };
 
-  const categories = categorizeServers();
+    const categories = useMemo(() => {
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const tomorrow = new Date(startOfToday);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const weekFromNow = new Date(now);
+        weekFromNow.setDate(weekFromNow.getDate() + 7);
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
 
-  if (loading) {
+        const byDate = (cmp: (d: Date) => boolean) =>
+            filteredServers.filter((s) => {
+                const d = toDate(s.openingDate as any);
+                return !!(d && cmp(d));
+            });
+        return {
+            comingSoon: sortByVipThenDate(byDate((d) => d > now), 'asc'),
+            alreadyOpened: sortByVipThenDate(byDate((d) => d <= now), 'asc'),
+            tomorrow: sortByVipThenDate(
+                filteredServers.filter((s) => {
+                    const d = toDate(s.openingDate as any);
+                    return !!(
+                        d && d.getFullYear() === tomorrow.getFullYear() &&
+                        d.getMonth() === tomorrow.getMonth() &&
+                        d.getDate() === tomorrow.getDate()
+                    );
+            }),
+                'asc'
+            ),
+            previous7Days: sortByVipThenDate(byDate((d) => d <= now && d >= weekAgo), 'asc'),
+            next7Days: sortByVipThenDate(byDate((d) => d > now && d <= weekFromNow), 'asc'),
+            weekAgoAndMore: sortByVipThenDate(byDate((d) => d < weekAgo), 'asc'),
+            afterWeekAndMore: sortByVipThenDate(byDate((d) => d > weekFromNow), 'asc'),
+        } as const;
+    }, [filteredServers]);
+
+
+  // const categorizeServers = () => {
+  //
+  //   return {
+  //     comingSoon: filteredServers.filter(server => new Date(server.openingDate) > now),
+  //     alreadyOpened: filteredServers.filter(server => new Date(server.openingDate) <= now),
+  //     tomorrow: filteredServers.filter(server => {
+  //       const openDate = new Date(server.openingDate);
+  //       return openDate.toDateString() === tomorrow.toDateString();
+  //     }),
+  //     previous7Days: filteredServers.filter(server => {
+  //       const openDate = new Date(server.openingDate);
+  //       return openDate <= now && openDate >= weekAgo;
+  //     }),
+  //     next7Days: filteredServers.filter(server => {
+  //       const openDate = new Date(server.openingDate);
+  //       return openDate > now && openDate <= weekFromNow;
+  //     }),
+  //     weekAgoAndMore: filteredServers.filter(server => new Date(server.openingDate) < weekAgo),
+  //     afterWeekAndMore: filteredServers.filter(server => new Date(server.openingDate) > weekFromNow),
+  //   };
+  // };
+
+  // const categories = categorizeServers();
+
+  if (sLoading) {
     return (
       <div className="min-h-screen bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

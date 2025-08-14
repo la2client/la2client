@@ -3,18 +3,25 @@ import { put, list, del } from '@vercel/blob';
 
 const BANNER_PREFIX = 'banner-';
 const BANNER_DATA_KEY = 'banner-data.json';
+const PUBLIC_BASE = (process.env.NEXT_PUBLIC_BLOB_BASE_URL || '').replace(/\/$/, '');
+const SERVERS_URL = PUBLIC_BASE ? `${PUBLIC_BASE}/${BANNER_DATA_KEY}` : '';
 
 export async function GET() {
-  try {
-    const { blobs } = await list({ prefix: BANNER_DATA_KEY });
-    if (blobs.length === 0) return NextResponse.json(null);
-    
-    const response = await fetch(blobs[0].url);
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch {
-    return NextResponse.json(null);
-  }
+    try {
+        if (!SERVERS_URL) return NextResponse.json(null);
+
+        const res = await fetch(SERVERS_URL, { cache: 'no-store' });
+        if (!res.ok) return NextResponse.json(null);
+
+        const data = await res.json();
+        return NextResponse.json(data, {
+            headers: {
+                'Cache-Control': 'no-store, max-age=0',
+            },
+        });
+    } catch {
+        return NextResponse.json(null);
+    }
 }
 
 export async function POST(request: NextRequest) {

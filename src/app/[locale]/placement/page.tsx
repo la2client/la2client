@@ -2,39 +2,43 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import WallpaperBanner from '@/components/WallpaperBanner';
 import { Send, Mail } from 'lucide-react';
 import {BannerData, Server, WallpaperData} from "@/lib/types";
-import {useEffect, useState} from "react";
-import {getBanner, getServers, getWallpaper} from "@/lib/storage";
+import { useMemo} from "react";
+import {useBlobJson} from "@/hooks/useBlobJson";
 
 export default function PlacementPage() {
   const t = useTranslations('placement');
-    const [vipServers, setVipServers] = useState<Server[]>([]);
-    const [wallpaper, setWallpaper] = useState<WallpaperData | null>(null);
-    const [banner, setBanner] = useState<BannerData | null>(null);
+    const { data: servers, loading: sLoading } = useBlobJson<Server[]>('/servers.json');
+    const { data: wallpaper, loading: wLoading } = useBlobJson<WallpaperData>('/wallpaper-data.json');
+    const { data: banner, loading: bLoading } = useBlobJson<BannerData>('/banner-data.json');
+    const vipServersCount = useMemo(() => {
+        if (!Array.isArray(servers)) return 0;
+        return servers.filter((s) => !!(s as any).isVip).slice(0, 20).length;
+    }, [servers]);
 
+    // Helpers to evaluate date availability
+    const now = new Date();
+    // Parse 'YYYY-MM-DD' as local date and consider it available through the end of that day
+    const isActiveUntil = (isoDate?: string) => {
+        if (!isoDate) return false;
+        const parts = isoDate.split('-').map(Number);
+        if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return false;
+        const [y, m, d] = parts as [number, number, number];
+        const endOfDay = new Date(y, m - 1, d, 23, 59, 59, 999);
+        return now <= endOfDay;
+    };
 
-  const contactButtons = [
+    const contactButtons = [
     { icon: Send, label: t('telegram'), href: '#' },
     { icon: Mail, label: t('email'), href: '#' },
   ];
-
-    /* fetch data once */
-    useEffect(() => {
-        (async () => {
-            const servers = await getServers();
-            setVipServers(servers.filter(s => s.isVip).slice(0, 20));  // up to 20 vip slots
-            setWallpaper(await getWallpaper());
-            setBanner(await getBanner());
-        })();
-    }, []);
 
     // 1× wallpaper slot
     const wallpaperOption = {
         title: t('websiteWallpaper'),
         subtitle: '1920x600',
-        status: wallpaper ? 'busy' : 'free',
+        status: isActiveUntil(wallpaper?.validUntil) ? 'busy' : 'free',
         dates: wallpaper?.validUntil ? [wallpaper.validUntil] : [],
     };
 
@@ -42,7 +46,7 @@ export default function PlacementPage() {
     const bannerOption = {
         title: t('banner'),
         subtitle: '240x400',
-        status: banner ? 'busy' : 'free',
+        status: isActiveUntil(banner?.validUntil) ? 'busy' : 'free',
         dates: banner?.validUntil ? [banner.validUntil] : [],
     };
 
@@ -50,8 +54,8 @@ export default function PlacementPage() {
     // summary card for VIP placement
     const vipOption = {
         title   : t('vipPlacement'),
-        subtitle: `${vipServers.length} / 20`,
-        status  : vipServers.length < 20 ? 'free' : 'busy',
+        subtitle: `${vipServersCount} / 20`,
+        status  : vipServersCount < 20 ? 'free' : 'busy',
         dates   : [],
     };
 
@@ -121,18 +125,22 @@ export default function PlacementPage() {
                   </span>
                 </div>
 
-                {option.dates.length > 0 && (
-                  <div>
-                    <p className="text-gray-400 text-sm mb-2">{t('placementFreeFrom')}:</p>
-                    <div className="space-y-1">
-                      {option.dates.map((date, dateIndex) => (
-                        <p key={dateIndex} className="text-gray-300 text-sm">
-                          {date}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  {option.status === 'free' ? (
+                      <p className="text-gray-400 text-sm">{t('freePlacement')}</p>
+                  ) : (
+                      option.dates.length > 0 && (
+                          <div>
+                              <p className="text-gray-400 text-sm mb-2">{t('placementFreeFrom')}:</p>
+                              <div className="space-y-1">
+                                  {option.dates.map((date, dateIndex) => (
+                                      <p key={dateIndex} className="text-gray-300 text-sm">
+                                          {date}
+                                      </p>
+                                  ))}
+                              </div>
+                          </div>
+                      )
+                  )}
               </motion.div>
             ))}
           </div>

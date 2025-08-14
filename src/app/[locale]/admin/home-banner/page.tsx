@@ -4,37 +4,31 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, Image as ImageIcon, ExternalLink } from 'lucide-react';
 import {uploadBanner, getBanner, uploadWallpaper, deleteWallpaper, deleteBanner} from '@/lib/storage';
-import { BannerData } from '@/lib/types';
+import {BannerData, WallpaperData} from '@/lib/types';
 import Image from 'next/image';
 import {Button} from "@/components/ui/button";
+import {useBlobJson} from "@/hooks/useBlobJson";
 
 export default function AdminHomeBannerPage() {
-  const [banner, setBanner] = useState<BannerData | null>(null);
-  const [loading, setLoading] = useState(true);
+    const {
+        data: banner,
+        loading: bLoading,
+        error: bError,
+        mutate,
+        revalidate
+    } = useBlobJson<WallpaperData | null>('/banner-data.json');
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [validUntil, setValidUntil] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  useEffect(() => {
-    loadBanner();
-  }, []);
-
-  const loadBanner = async () => {
-    try {
-      const data = await getBanner();
-      setBanner(data);
-      if (data?.linkUrl) {
-        setLinkUrl(data.linkUrl);
-      }
-        if (data?.validUntil) setValidUntil(data.validUntil.slice(0, 10)); // YYYY-MM-DD
-    } catch (error) {
-      console.error('Failed to load banner:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    useEffect(() => {
+        if (banner?.linkUrl) setLinkUrl(banner.linkUrl);
+        else setLinkUrl('');
+        if (banner?.validUntil) setValidUntil(banner.validUntil.slice(0, 10));
+        else setValidUntil('');
+    }, [banner]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) =>
         setSelectedFile(e.target.files?.[0] ?? null);
@@ -43,7 +37,8 @@ export default function AdminHomeBannerPage() {
         setUploading(true); setMessage('');
         try {
             const saved = await uploadBanner(selectedFile, linkUrl.trim(), validUntil);
-            setBanner(saved);
+            await revalidate();
+            mutate(saved);
             setSelectedFile(null);
             setMessage('Banner saved successfully!');
         } catch { setMessage('Failed to save.'); }
@@ -54,7 +49,8 @@ export default function AdminHomeBannerPage() {
         if (!confirm('Delete current banner?')) return;
         try {
             await deleteBanner();
-            setBanner(null); setLinkUrl(''); setValidUntil(''); setSelectedFile(null);
+            await revalidate();
+            mutate(null); setLinkUrl(''); setValidUntil(''); setSelectedFile(null);
         } catch { setMessage('Failed to delete.'); }
     };
 
@@ -77,7 +73,7 @@ export default function AdminHomeBannerPage() {
   //   }
   // };
 
-  if (loading) {
+  if (bLoading) {
     return (
       <div className="min-h-screen bg-gray-900 p-8">
         <div className="animate-pulse text-center text-gray-400">Loading...</div>

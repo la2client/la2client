@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Server, Image, Home, LogOut, Settings } from 'lucide-react';
+import {useLocale} from "next-intl";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -13,48 +14,50 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  const locale = useLocale();
+  const adminRoot = useMemo(() => `/${locale}/admin`, [locale]);
+  const isLogin = pathname === adminRoot;
+
 
   useEffect(() => {
+      if(isLogin) return
     // Check authentication
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/check');
+          const response = await fetch('/api/auth/check', {cache: 'no-store'});
         if (!response.ok) {
-          router.push('/admin');
-          return;
+            router.replace(adminRoot);
+            return;
         }
       } catch (error) {
-        router.push('/admin');
+        router.replace(adminRoot);
         return;
       }
     };
 
-    if (pathname !== '/admin') {
       checkAuth();
-    } else {
-    }
-  }, [pathname, router]);
+  }, [pathname, router, adminRoot]);
 
   const handleLogout = async () => {
     try {
       await fetch('/api/auth', { method: 'DELETE' });
-      router.push('/admin');
+        router.replace(adminRoot);
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Loading...</div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+  //       <div className="animate-pulse text-gray-400">Loading...</div>
+  //     </div>
+  //   );
+  // }
 
   // Login page doesn't need sidebar
-  if (pathname === '/admin') {
+  if (isLogin) {
     return <>{children}</>;
   }
 

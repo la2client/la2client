@@ -3,20 +3,17 @@ import {Server} from "@/lib/types";
 import {del, list, put} from "@vercel/blob";
 
 const SERVERS_BLOB_KEY = 'servers.json';
+const PUBLIC_BASE = (process.env.NEXT_PUBLIC_BLOB_BASE_URL || '').replace(/\/$/, '');
+const SERVERS_URL = PUBLIC_BASE ? `${PUBLIC_BASE}/${SERVERS_BLOB_KEY}` : '';
 
 async function getServersFromBlob(): Promise<Server[]> {
+    if (!SERVERS_URL) return [];
     try {
-        const { blobs } = await list({ prefix: SERVERS_BLOB_KEY });
-        if (blobs.length === 0) return [];
-
-        const latest = blobs.reduce((prev, curr) =>
-                new Date(curr.uploadedAt).getTime() > new Date(prev.uploadedAt).getTime()
-                    ? curr
-                    : prev,
-            blobs[0]);
-
-        const response = await fetch(latest.url);
-        return (await response.json()) as Server[];
+        // Read directly from the stable public URL; avoid advanced ops
+        const res = await fetch(SERVERS_URL, { cache: 'no-store' });
+        if (!res.ok) return [];
+        const json = (await res.json()) as unknown;
+        return Array.isArray(json) ? (json as Server[]) : [];
     } catch {
         return [];
     }
